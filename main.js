@@ -1,5 +1,5 @@
 // --- CONFIGURACIÓN GLOBAL Y VARIABLES ---
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyf4A3HD2I7t0Oo0iSfKBQuKP5a-Dbix5Cnr6YIBgrw-qCbFVFA5THeWp3ZB2a2dlQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbztRER8mua_Ycihts4PRFJB89Ehfs_p7r8sdoScqA84lFPtqZvF-o_bIShirhlMTMao/exec";
 const MAX_IMAGES = 5;
 let allReportsData = [], executivesData = [], uploadedFiles = [], quill, dataTableInstance;
 
@@ -85,19 +85,20 @@ function createTable(data) {
         return;
     }
 
-    let tableHtml = `<table id="dataTable" class="table table-hover align-middle w-100"><thead><tr><th>Ejecutivo</th><th>Cargo</th><th>Fecha Reporte</th><th>Hora</th><th class="text-center">Estado</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
+    let tableHtml = `<table id="dataTable" class="table table-hover align-middle w-100"><thead><tr><th>Ejecutivo</th><th>Cargo</th><th>Fecha de Actividades</th><th>Fecha de Envío</th><th>Hora de Envío</th><th class="text-center">Estado</th><th>Observaciones</th><th class="text-center">Acciones</th></tr></thead><tbody>`;
     
     data.forEach((row) => {
         const reportId = row[0];
         const timestamp = row[1] ? new Date(row[1]) : null;
         const ejecutivo = row[2] || '';
         const estado = row[11] || 'Enviado';
+        const observaciones = row[12] || '';
         
-        // Buscamos el índice original para pasarlo a los botones
         const originalIndex = allReportsData.findIndex(originalRow => originalRow[0] === reportId);
         
-        const fechaFormateada = timestamp ? timestamp.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
-        const horaFormateada = timestamp ? timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+        const fechaActividades = row[4] ? new Date(row[4]).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' }) : '';
+        const fechaEnvio = timestamp ? timestamp.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+        const horaEnvio = timestamp ? timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
 
         const statusSelectHtml = `
             <select class="form-select form-select-sm status-select status-${estado}" data-id="${reportId}" data-current-status="${estado}">
@@ -110,13 +111,14 @@ function createTable(data) {
         const executiveColorClass = getExecutiveColorClass(ejecutivo);
         const executiveHtml = `<span class="executive-badge ${executiveColorClass}">${ejecutivo}</span>`;
 
-        // ¡CORRECCIÓN CLAVE! Guardamos el índice original en la fila <tr>
         tableHtml += `<tr data-original-index="${originalIndex}">
             <td>${executiveHtml}</td>
             <td>${row[3] || ''}</td>
-            <td>${fechaFormateada}</td>
-            <td>${horaFormateada}</td>
+            <td>${fechaActividades}</td>
+            <td>${fechaEnvio}</td>
+            <td>${horaEnvio}</td>
             <td class="text-center">${statusSelectHtml}</td>
+            <td>${observaciones}</td>
             <td class="text-center">
                 <button class="btn btn-sm btn-outline-secondary view-btn" data-index="${originalIndex}" title="Ver Detalles">
                     <i class="fas fa-envelope-open"></i>
@@ -128,7 +130,7 @@ function createTable(data) {
     container.innerHTML = tableHtml;
     dataTableInstance = $('#dataTable').DataTable({
         responsive: true,
-        order: [[2, 'desc'], [3, 'desc']],
+        order: [[3, 'desc'], [4, 'desc']], // Ordenar por Fecha y luego Hora de Envío
         language: { url: "//cdn.datatables.net/plug-ins/1.13.3/i18n/es-ES.json" }
     });
 }
@@ -150,13 +152,8 @@ function applyFilters() {
         
 async function handleFormSubmit() {
     const form = document.getElementById('reportForm');
-    if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return;
-    }
-    if (uploadedFiles.length > MAX_IMAGES) {
-        return Swal.fire('Límite excedido', `Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`, 'warning');
-    }
+    if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+    if (uploadedFiles.length > MAX_IMAGES) { return Swal.fire('Límite excedido', `Solo puedes subir un máximo de ${MAX_IMAGES} imágenes.`, 'warning'); }
     const formData = {
         ejecutivo: $('#formExecutive').val(),
         cargo: $('#formCargo').val(),
@@ -164,12 +161,7 @@ async function handleFormSubmit() {
         actividadesDetalladas: quill.root.innerHTML,
         images: []
     };
-    const promises = uploadedFiles.map(file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    }));
+    const promises = uploadedFiles.map(file => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.onerror = error => reject(error); reader.readAsDataURL(file); }));
     try {
         showSpinner(true);
         formData.images = await Promise.all(promises);
@@ -192,10 +184,7 @@ function clearForm() {
 
 function handleFileSelection(newFiles) {
     const filesToAdd = Array.from(newFiles);
-    if (uploadedFiles.length + filesToAdd.length > MAX_IMAGES) {
-        Swal.fire('Límite excedido', `Solo puedes subir un total de ${MAX_IMAGES} imágenes.`, 'warning');
-        return;
-    }
+    if (uploadedFiles.length + filesToAdd.length > MAX_IMAGES) { Swal.fire('Límite excedido', `Solo puedes subir un total de ${MAX_IMAGES} imágenes.`, 'warning'); return; }
     uploadedFiles.push(...filesToAdd);
     renderPreviews();
 }
@@ -205,21 +194,15 @@ function renderPreviews() {
     previewContainer.html('');
     uploadedFiles.forEach((file, index) => {
         const reader = new FileReader();
-        reader.onload = e => {
-            previewContainer.append(`<div class="preview-image-container"><img src="${e.target.result}" class="preview-image"><button type="button" class="remove-btn" data-index="${index}">&times;</button></div>`);
-        };
+        reader.onload = e => { previewContainer.append(`<div class="preview-image-container"><img src="${e.target.result}" class="preview-image"><button type="button" class="remove-btn" data-index="${index}">&times;</button></div>`); };
         reader.readAsDataURL(file);
     });
 }
 
-/**
- * Orquesta la validación de contraseña para cualquier acción.
- * @param {Function} actionToExecute - La función que se ejecutará si la contraseña es válida.
- */
-async function executeWithPasswordValidation(actionToExecute) {
+async function executeWithPasswordValidation(actionToExecute, params = {}) {
     const sessionPassword = sessionStorage.getItem('sessionPassword');
     if (sessionPassword) {
-        await actionToExecute(sessionPassword);
+        await actionToExecute(sessionPassword, params);
         return;
     }
     const { value: password } = await Swal.fire({
@@ -241,7 +224,7 @@ async function executeWithPasswordValidation(actionToExecute) {
     });
     if (password) {
         sessionStorage.setItem('sessionPassword', password);
-        await actionToExecute(password);
+        await actionToExecute(password, params);
     }
 }
 
@@ -249,20 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
     spinnerModal = new bootstrap.Modal(document.getElementById('spinnerModal'));
     detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
     
-    const toolbarOptions = [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'], ['blockquote'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'indent': '-1'}, { 'indent': '+1' }],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ 'align': [] }],
-        ['clean']
-    ];
-    quill = new Quill('#editor-container', {
-        modules: { toolbar: toolbarOptions },
-        theme: 'snow',
-        placeholder: 'Escribe el detalle de tus actividades aquí...'
-    });
+    const toolbarOptions = [[{ 'header': [1, 2, 3, false] }],['bold', 'italic', 'underline', 'strike'],['blockquote'],[{ 'list': 'ordered'}, { 'list': 'bullet' }],[{ 'indent': '-1'}, { 'indent': '+1' }],[{ 'color': [] }, { 'background': [] }],[{ 'align': [] }],['clean']];
+    quill = new Quill('#editor-container', { modules: { toolbar: toolbarOptions }, theme: 'snow', placeholder: 'Escribe el detalle de tus actividades aquí...' });
     
     fetchInitialData();
 
@@ -315,8 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rowData) return;
         
         const ejecutivo = rowData[2], cargo = rowData[3], fecha = new Date(rowData[4]);
-        const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-        const actividadesHtml = rowData[5], imageUrls = rowData.slice(6, 11);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' });
+        const actividadesHtml = rowData[5], imageUrls = rowData.slice(6, 11), comentarios = rowData[12] || '';
         
         $('#detailEjecutivo').text(ejecutivo);
         $('#detailCargo').text(cargo);
@@ -325,45 +296,71 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#detailBody .ql-editor').html(actividadesHtml || '<p><em>No se registraron detalles.</em></p>');
         const attachmentsHtml = imageUrls.map(previewUrl => {
             if (!previewUrl) return '';
-            return `<a href="${previewUrl}" target="_blank" title="Haz clic para abrir en una nueva pestaña"><iframe src="${previewUrl}" scrolling="no"></iframe></a>`;
+            return `<a href="${previewUrl}" target="_blank" title="Haz clic para abrir"><iframe src="${previewUrl}" scrolling="no"></iframe></a>`;
         }).join('');
         $('#detailAttachments').html(attachmentsHtml || '<p class="text-muted"><em>No hay archivos adjuntos.</em></p>');
+        
+        // Lógica para mostrar comentarios en el modal de detalles
+        if (comentarios) {
+            $('#detailCommentSection').show();
+            $('#detailCommentText').text(comentarios);
+        } else {
+            $('#detailCommentSection').hide();
+        }
+
         detailModal.show();
     });
 
-    $('#dataTableContainer').on('change', '.status-select', function() {
+    $('#dataTableContainer').on('change', '.status-select', async function() {
         const selectElement = $(this);
         const reportId = selectElement.data('id');
         const newStatus = selectElement.val();
         const currentStatus = selectElement.data('current-status');
 
-        const updateAction = async (password) => {
+        const updateAction = async (password, params) => {
             try {
-                await appFetch('updateStatus', { reportId, newStatus, password });
+                await appFetch('updateStatus', { reportId, newStatus, password, comment: params.comment || '' });
                 selectElement.removeClass('status-Enviado status-Recibido status-Observado').addClass(`status-${newStatus}`);
                 selectElement.data('current-status', newStatus);
                 const reportIndex = allReportsData.findIndex(row => row[0] == reportId);
-                if(reportIndex > -1) allReportsData[reportIndex][11] = newStatus;
+                if (reportIndex > -1) {
+                    allReportsData[reportIndex][11] = newStatus;
+                    allReportsData[reportIndex][12] = params.comment || '';
+                }
+                createTable(allReportsData); // Redibujar para mostrar comentario
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Estado actualizado', showConfirmButton: false, timer: 1500 });
-            } catch(error) {
+            } catch (error) {
                 selectElement.val(currentStatus);
             }
         };
         
-        executeWithPasswordValidation(updateAction).catch(() => selectElement.val(currentStatus));
+        if (newStatus === 'Observado') {
+            const { value: comment } = await Swal.fire({
+                title: 'Añadir Comentario',
+                input: 'textarea',
+                inputLabel: 'Por favor, introduce el motivo de la observación.',
+                inputPlaceholder: 'Escribe tu comentario aquí...',
+                showCancelButton: true,
+                confirmButtonText: 'Guardar y Cambiar Estado',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (comment !== undefined) { // Si el usuario no cancela (incluso si está vacío)
+                executeWithPasswordValidation(updateAction, { comment: comment }).catch(() => selectElement.val(currentStatus));
+            } else {
+                selectElement.val(currentStatus);
+            }
+        } else {
+            executeWithPasswordValidation(updateAction).catch(() => selectElement.val(currentStatus));
+        }
     });
 
-    // --- ¡NUEVO EVENT LISTENER CON VALIDACIÓN DE CONTRASEÑA! ---
     $('#sendConsolidatedReportBtn').on('click', function() {
         if (!dataTableInstance) return;
-
-        // ¡LÓGICA CORREGIDA PARA RECOPILAR DATOS FILTRADOS!
         const filteredData = [];
         dataTableInstance.rows({ filter: 'applied' }).nodes().each(function (node) {
             const index = $(node).data('original-index');
-            if (index !== undefined) {
-                filteredData.push(allReportsData[index]);
-            }
+            if (index !== undefined) filteredData.push(allReportsData[index]);
         });
 
         if (filteredData.length === 0) {
