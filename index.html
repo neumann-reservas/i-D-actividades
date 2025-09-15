@@ -23,27 +23,9 @@
         
         <!-- Panel de Resumen (Dashboard) -->
         <div class="row mb-4">
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="card p-3 stat-card">
-                    <div class="icon mb-2"><i class="fas fa-file-alt"></i></div>
-                    <div id="totalReports" class="stat-number">0</div>
-                    <div class="stat-label">Reportes Totales</div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="card p-3 stat-card">
-                    <div class="icon mb-2"><i class="fas fa-calendar-day"></i></div>
-                    <div id="todayReports" class="stat-number">0</div>
-                    <div class="stat-label">Reportes de Hoy</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-3 stat-card">
-                    <div class="icon mb-2"><i class="fas fa-user-check"></i></div>
-                    <div id="executivesCount" class="stat-number">0</div>
-                    <div class="stat-label">Ejecutivos Activos</div>
-                </div>
-            </div>
+            <div class="col-md-4 mb-3 mb-md-0"><div class="card p-3 stat-card"><div class="icon mb-2"><i class="fas fa-file-alt"></i></div><div id="totalReports" class="stat-number">0</div><div class="stat-label">Reportes Totales</div></div></div>
+            <div class="col-md-4 mb-3 mb-md-0"><div class="card p-3 stat-card"><div class="icon mb-2"><i class="fas fa-calendar-day"></i></div><div id="todayReports" class="stat-number">0</div><div class="stat-label">Reportes de Hoy</div></div></div>
+            <div class="col-md-4"><div class="card p-3 stat-card"><div class="icon mb-2"><i class="fas fa-user-check"></i></div><div id="executivesCount" class="stat-number">0</div><div class="stat-label">Ejecutivos Activos</div></div></div>
         </div>
 
         <!-- Tarjeta Principal con Filtros y Tabla -->
@@ -125,6 +107,12 @@
                     <h4 id="detailSubject" class="mb-4"></h4>
                     <div id="detailBody" class="ql-snow"><div class="ql-editor"></div></div>
                     <hr class="my-4">
+                    <!-- ¡NUEVA SECCIÓN DE COMENTARIOS! -->
+                    <div id="detailCommentSection" style="display: none;">
+                        <h6 class="mb-2"><i class="fas fa-comment-dots me-2"></i>Comentarios de Revisión</h6>
+                        <p id="detailCommentText" class="p-3 rounded" style="background-color: #fffbe6; border-left: 4px solid #ffc107;"></p>
+                        <hr class="my-4">
+                    </div>
                     <h6 class="mb-3"><i class="fas fa-paperclip me-2"></i>Archivos Adjuntos</h6>
                     <div id="detailAttachments"></div>
                 </div>
