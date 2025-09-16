@@ -9,8 +9,8 @@
     /* Colores para Estados */
     --warning-bg: #d8e1ff;   /* Naranja para Enviado */
     --warning-text: #3054a1;
-    --success-bg: #52a17e;   /* Verde para Recibido */
-    --success-text: #e9fff5;
+    --success-bg: #c0e4d4;   /* Verde para Recibido */
+    --success-text: #20523b;
     --danger-bg: #f8d7da;      /* Rojo para Observado */
     --danger-text: #842029;
 }
