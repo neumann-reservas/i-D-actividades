@@ -103,7 +103,7 @@ function createTable(data) {
         const statusSelectHtml = `
             <select class="form-select form-select-sm status-select status-${estado}" data-id="${reportId}" data-current-status="${estado}">
                 <option value="Enviado" ${estado === 'Enviado' ? 'selected' : ''}>📧 Enviado</option>
-                <option value="Recibido" ${estado === 'Recibido' ? 'selected' : ''}>✔️ Recibido</option>
+                <option value="Recibido" ${estado === 'Recibido' ? 'selected' : ''}>✅ Recibido</option>
                 <option value="Observado" ${estado === 'Observado' ? 'selected' : ''}>⚠️ Observado</option>
             </select>
         `;
@@ -396,3 +396,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
