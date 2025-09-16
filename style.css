@@ -7,12 +7,12 @@
     --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075); 
     --shadow: 0 .5rem 1rem rgba(0,0,0,.15);
     /* Colores para Estados */
-    --warning-bg: #d8e1ff;   /* Naranja para Enviado */
-    --warning-text: #3054a1;
-    --success-bg: #c0e4d4;   /* Verde para Recibido */
-    --success-text: #20523b;
-    --danger-bg: #f8d7da;      /* Rojo para Observado */
-    --danger-text: #842029;
+    --warning-bg: #fff4e5;   /* Naranja pastel para Enviado */
+    --warning-text: #8a4b16;
+    --success-bg: #e6f6f1;   /* Verde menta suave para Recibido */
+    --success-text: #0b6a53;
+    --danger-bg: #fde7e9;    /* Rojo muy claro para Observado */
+    --danger-text: #a4262c;
 }
 
 /* --- Estilos Generales --- */
@@ -91,11 +91,11 @@ body {
     color: #000000;
 }
 
-/* Colores suaves y profesionales */
-.color-1 { background-color: #d1e3f5; } /* Gris */
-.color-2 { background-color: #a79fee; } /* Verde */
-.color-3 { background-color: #b3dbeb; } /* Azul */
-.color-4 { background-color: #c5cca0; } /* Rojo */
-.color-5 { background-color: #ece2c1; color: #000; } /* Amarillo */
-.color-6 { background-color: #ace9f5; color: #000; } /* Cian */
-.color-7 { background-color: #ebd4c1; } /* Naranja */
+/* Paleta suave estilo Windows sin rojo */
+.color-1 { background-color: #f3f2f7; color: #323130; } /* Gris suave */
+.color-2 { background-color: #edf5ff; color: #004578; } /* Azul pastel */
+.color-3 { background-color: #e6f6f1; color: #0b6a53; } /* Verde menta */
+.color-4 { background-color: #fdf5ff; color: #5c2d91; } /* Violeta suave */
+.color-5 { background-color: #fffbe6; color: #986f0b; } /* Amarillo pastel */
+.color-6 { background-color: #f0f9ff; color: #005a9e; } /* Cian pastel */
+.color-7 { background-color: #f5f0ff; color: #3b2e58; } /* Lavanda / púrpura */
