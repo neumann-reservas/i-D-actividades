@@ -1,5 +1,5 @@
 // --- CONFIGURACIÓN GLOBAL Y VARIABLES ---
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQ5RCHopN_KFn6rOEbw5k9b_K0kWClpCs-Sv1yuDOoyp7TaMLem47xogv5AsA9LjHX/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwaqjwz-94rKeJin6yI1YKOS7qaIsAxCNiDvpWNWUDXUExKCiBmfhmj5M7QTN_u0kSE/exec";
 const MAX_IMAGES = 5;
 let allReportsData = [], executivesData = [], uploadedFiles = [], quill, dataTableInstance;
 let spinnerModal, detailModal, imagePreviewModal;
@@ -229,4 +229,5 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         Swal.fire({ title: '¿Enviar Reporte Consolidado?', text: `Se enviará un correo con ${filteredData.length} reportes.`, icon: 'question', showCancelButton: true, confirmButtonText: 'Sí, enviar', cancelButtonText: 'Cancelar' }).then((result) => { if (result.isConfirmed) { executeWithPasswordValidation(sendAction); } });
     });
+
 });
